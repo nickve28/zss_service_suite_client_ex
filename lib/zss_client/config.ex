@@ -12,6 +12,9 @@ defmodule ZssClient.Config do
     sid: nil
   ]
 
+  @doc """
+  Creates a new configuration with sensible defaults. Used to create ZSS Clients.
+  """
   def new(%{identity: identity, sid: sid} = config) do
     full_config = %{config |
       identity: String.upcase(identity),
