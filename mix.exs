@@ -13,11 +13,15 @@ defmodule ZssClient.Mixfile do
   end
 
   def application do
-    [applications: [:logger]]
+    [applications: [:logger, :uuid, :chumak, :msgpax],
+     mod: {ZssClient, []}]
   end
 
   defp deps do
     [
+      {:chumak, "~> 1.2.0"},
+      {:msgpax, "~> 1.0"},
+      {:uuid, "~> 1.1"},
       {:credo, "~> 0.3", only: [:dev, :test]}
     ]
   end

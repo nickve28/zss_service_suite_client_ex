@@ -24,4 +24,8 @@ defmodule ZssClient do
   def get_config(%{identity: identity, sid: sid} = config) when is_binary(identity) and is_binary(sid) do
     Config.new(config)
   end
+
+  def get_client(%Config{} = config) do
+    Supervisor.start_child(ZssClient.Supervisor, [config])
+  end
 end

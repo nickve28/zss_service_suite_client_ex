@@ -20,11 +20,11 @@ T.B.D.
 
 ## Creating a Client and calling a Service Worker
 
-In order to create a client, you start by creating an appropriate config struct.
+In order to create a client, you start by creating an appropriate configuration.
 Note that broker and timeout are optional, and will default to the shown values respectively.
 
 ```elixir
-config = ZssClient.get_config %{identity: "EXAMPLE_CLIENT", broker: "tcp://127.0.0.1:7777", timeout: 1000, sid: "PING"}
+config = ZssClient.get_instance %{identity: "EXAMPLE_CLIENT", broker: "tcp://127.0.0.1:7776", timeout: 1000, sid: "PING"}
 ```
 
 Based on the config, you can instantiate Clients.
@@ -36,8 +36,7 @@ Based on the config, you can instantiate Clients.
 This client can be used to make calls to various specified endpoints.
 
 ```elixir
-:ok = ZssClient.call(client, "GET", %{})
-with {:ok, _payload, status} <- ZssClient.recv(client) do
+with {:ok, payload, status} <- ZssClient.get_response(client) do
   IO.inspect("Received #{inspect payload} with status #{inspect status}")
   {:ok, status}
 else
@@ -47,7 +46,7 @@ else
 end
 ```
 
-Note that receiving messages (recv) is a blocking action, but calling a service is not. In case you want to perform multiple actions, you can do something akin to
+Note that receiving messages (get_response) is a blocking action for that client, but calling a service is not. In case you want to perform multiple actions, you can do something akin to
 
 ```elixir
 config = ZssClient.get_config %{identity: "EXAMPLE_CLIENT", broker: "tcp://127.0.0.1:7777", timeout: 1000, sid: "PING"}
@@ -58,7 +57,7 @@ config2 = ZssClient.get_config %{identity: "EXAMPLE_CLIENT", broker: "tcp://127.
 
 with :ok <- ZssClient.call(ping_client, "GET", %{}),
      :ok <- Zssclient.call(pong_client, "LIST", %{}),
-     [ping_reply, pong_reply] <- [ZssClient.recv(ping_client), ZssClient.recv(pong_client)],
+     [ping_reply, pong_reply] <- [ZssClient.get_response(ping_client), ZssClient.get_response(pong_client)],
 do
   #handle 2 messages
 else
