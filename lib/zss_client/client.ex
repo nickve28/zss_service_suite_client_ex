@@ -9,6 +9,8 @@ defmodule ZssClient.Client do
   alias ZssClient.Adapters.{Socket}
   alias ZssClient.{Message}
 
+  require Logger
+
   use GenServer
 
   def start_link(config) do
@@ -43,6 +45,15 @@ defmodule ZssClient.Client do
     message = Message.new config.sid, verb
     message = %ZssClient.Message{message | payload: payload, headers: headers}
 
+    Logger.info("#{config.identity}: Sending message to #{message.address.sid} with timeout #{config.timeout}")
+
+    Logger.debug(fn ->
+      "Sending payload #{inspect message.payload}"
+    end)
+    Logger.debug(fn ->
+      "Sending headers #{inspect message.headers}"
+    end)
+
     feedback = send_message(state.socket, message)
     {:reply, feedback, state}
   end
@@ -52,6 +63,17 @@ defmodule ZssClient.Client do
     |> Socket.get_response
 
     response = Message.parse(frames)
+
+    Logger.info("Received reply from #{response.address.sid} with status #{response.status}")
+
+    Logger.debug(fn ->
+      "Received payload #{inspect response.payload}"
+    end)
+
+    Logger.debug(fn ->
+      "Received headers #{inspect response.headers}"
+    end)
+
     %{payload: payload, status: status} = response
 
     {:reply, {:ok, payload, status}, state}

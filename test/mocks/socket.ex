@@ -37,11 +37,15 @@ defmodule ZssClient.Mocks.Socket do
   #Simulate functions
   def new(config), do: GenServer.call(__MODULE__, {:new, [config]})
 
-  def link_to_poller(socket), do: GenServer.call(__MODULE__, {:link_to_poller, [socket]})
+  def connect(socket, identity, broker) do
+    GenServer.call(__MODULE__, {:connect, [socket], identity, broker})
+  end
+
+  def get_response(socket), do: GenServer.call(__MODULE__, {:get_response, [socket]})
 
   def send(socket, msg), do: GenServer.call(__MODULE__, {:send, [socket, msg]})
 
-  def cleanup(socket, poller), do: GenServer.call(__MODULE__, {:cleanup, [socket, poller]})
+  def cleanup(socket), do: GenServer.call(__MODULE__, {:cleanup, [socket]})
 
   def handle_call({:stub, verb, response}, _from, %State{handlers: handlers} = state) do
     handlers = Map.put(handlers, verb, response)
