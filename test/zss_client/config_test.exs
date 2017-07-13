@@ -30,15 +30,15 @@ defmodule ZssClient.ConfigTest do
     assert %Config{timeout: 1500} = Config.new(conf)
   end
 
-  test "#new should default broker to tcp://127.0.0.1" do
+  test "#new should default broker to tcp://127.0.0.1:7777" do
     conf = %{sid: "foo", identity: "ping"}
 
-    assert %Config{broker: "tcp://127.0.0.1"} = Config.new(conf)
+    assert %Config{broker: "tcp://127.0.0.1:7777"} = Config.new(conf)
   end
 
   test "#new should allow custom value for broker" do
-    conf = %{sid: "foo", identity: "ping", broker: "tcp://127.0.0.2"}
+    conf = %{sid: "foo", identity: "ping", broker: "tcp://127.0.0.2:7777"}
 
-    assert %Config{broker: "tcp://127.0.0.2"} = Config.new(conf)
+    assert %Config{broker: "tcp://127.0.0.2:7777"} = Config.new(conf)
   end
 end

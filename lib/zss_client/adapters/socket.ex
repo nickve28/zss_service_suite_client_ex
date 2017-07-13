@@ -44,7 +44,7 @@ defmodule ZssClient.Adapters.Socket do
   @doc """
   Receive a message send to the socket
   """
-  def receive(socket) do
+  def get_response(socket) do
     :chumak.recv_multipart(socket)
   end
 

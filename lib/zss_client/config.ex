@@ -7,7 +7,7 @@ defmodule ZssClient.Config do
 
   defstruct [
     identity: nil,
-    broker: "tcp://127.0.0.1",
+    broker: "tcp://127.0.0.1:7777",
     timeout: 1000,
     sid: nil
   ]
