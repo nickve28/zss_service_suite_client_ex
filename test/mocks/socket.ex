@@ -1,4 +1,4 @@
-defmodule ZssClient.Mocks.Socket do
+defmodule ZssClient.Mocks.Adapters.Socket do
   @moduledoc false
 
   @behaviour ZssClient.Sender
@@ -6,6 +6,7 @@ defmodule ZssClient.Mocks.Socket do
   use GenServer
 
   defmodule State do
+    @moduledoc false
     defstruct [
       state: :disabled,
       handlers: %{}
@@ -35,10 +36,10 @@ defmodule ZssClient.Mocks.Socket do
   end
 
   #Simulate functions
-  def new(config), do: GenServer.call(__MODULE__, {:new, [config]})
+  def new_socket(config), do: GenServer.call(__MODULE__, {:new_socket, [config]})
 
   def connect(socket, identity, broker) do
-    GenServer.call(__MODULE__, {:connect, [socket], identity, broker})
+    GenServer.call(__MODULE__, {:connect, [socket, identity, broker]})
   end
 
   def get_response(socket), do: GenServer.call(__MODULE__, {:get_response, [socket]})

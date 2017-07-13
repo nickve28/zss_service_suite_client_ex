@@ -7,6 +7,6 @@ config :logger,
 config :zss_client,
   socket_adapter: ZssClient.Adapters.Socket
 
-if MIX_ENV === :test do
+if Mix.env === :test do
   import_config "#{Mix.env}.exs"
 end

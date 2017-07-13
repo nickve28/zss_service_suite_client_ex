@@ -13,6 +13,9 @@ defmodule ZssClient.Client do
 
   use GenServer
 
+  @socket Application.get_env(:zss_client, :socket_adapter) || Socket
+
+  # Public API
   def start_link(config) do
     GenServer.start_link(__MODULE__, [config])
   end
@@ -32,8 +35,9 @@ defmodule ZssClient.Client do
   def init([config]) do
     identity = get_identity(config.identity)
     opts = %{type: :dealer, identity: identity}
-    socket = Socket.new_socket(opts)
-    Socket.connect(socket, config.identity, config.broker)
+    socket = @socket.new_socket(opts)
+
+    @socket.connect(socket, config.identity, config.broker)
 
     state = State.new(config, identity, socket)
     {:ok, state}
@@ -60,7 +64,7 @@ defmodule ZssClient.Client do
 
   def handle_call(:get_response, _from, state) do
     {:ok, frames} = state.socket
-    |> Socket.get_response
+    |> @socket.get_response
 
     response = Message.parse(frames)
 
@@ -79,6 +83,8 @@ defmodule ZssClient.Client do
     {:reply, {:ok, payload, status}, state}
   end
 
+  # Private API
+
   @doc """
   Create an unique identity for this client
   """
@@ -94,6 +100,6 @@ defmodule ZssClient.Client do
   """
   defp send_message(socket, message) do
     [_ | frames] = Message.to_frames(message)
-    Socket.send(socket, frames)
+    @socket.send(socket, frames)
   end
 end
