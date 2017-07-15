@@ -3,7 +3,7 @@ defmodule ZssClient.Error do
   Provides convenience functions for coercing errors
   """
 
-  @errors Application.get_env(:zss_client, :errors)
+  @errors ZssClient.ErrorCodes.errors
   @internal "500"
 
   @messages [:developer_message, :user_message, :validation_errors]
