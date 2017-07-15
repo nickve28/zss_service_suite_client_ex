@@ -79,8 +79,9 @@ defmodule ZssClient.Client do
     end)
 
     %{payload: payload, status: status} = response
+    reply = {:ok, payload, status |> String.to_integer}
 
-    {:reply, {:ok, payload, status}, state}
+    {:reply, reply, state}
   end
 
   # Private API

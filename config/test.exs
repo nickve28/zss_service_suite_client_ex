@@ -1,7 +1,7 @@
 use Mix.Config
 
 config :logger,
-  backends: [:console],
+  backends: [],
   compile_time_purge_level: :info
 
 config :zss_client,
