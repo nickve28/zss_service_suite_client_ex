@@ -204,5 +204,48 @@ defmodule ZssClient.ClientTest do
       response = Client.get_response(client)
       assert {:ok, %{"id" => "1"}, 200} === response
     end
+
+    test "translates status codes greater or equal to 400 to error" do
+      config = %Config{sid: "SERVICE", identity: "CLIENT"}
+
+      Socket.stub(:new_socket, :my_socket)
+      Socket.stub(:connect, :ok)
+      Socket.stub(:send, :ok)
+      Socket.stub(:get_response, fn _ ->
+        response = Message.new "SERVICE", "GET"
+        response = %Message{response | status: "400", payload: %{"id" => "1"}, type: "REP"}
+
+        {:ok, response |> Message.to_frames}
+      end)
+
+      {:ok, client} = Client.start_link(config)
+      headers = %{headers: %{"user_id" => "1"}}
+      Client.call(client, {"get", %{"foo" => "bar"}, headers})
+
+      response = Client.get_response(client)
+      assert {:error, _payload, 400} = response
+    end
+
+
+    test "translates status codes greater or equal to 400 to an error payload" do
+      config = %Config{sid: "SERVICE", identity: "CLIENT"}
+
+      Socket.stub(:new_socket, :my_socket)
+      Socket.stub(:connect, :ok)
+      Socket.stub(:send, :ok)
+      Socket.stub(:get_response, fn _ ->
+        response = Message.new "SERVICE", "GET"
+        response = %Message{response | status: "400", payload: %{"id" => "1"}, type: "REP"}
+
+        {:ok, response |> Message.to_frames}
+      end)
+
+      {:ok, client} = Client.start_link(config)
+      headers = %{headers: %{"user_id" => "1"}}
+      Client.call(client, {"get", %{"foo" => "bar"}, headers})
+
+      {:error, payload, 400} = Client.get_response(client)
+      assert %{"validation_errors" => _, "developer_message" => _, "user_message" => _} = payload
+    end
   end
 end

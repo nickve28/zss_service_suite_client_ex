@@ -8,6 +8,7 @@ defmodule ZssClient.Client do
   alias ZssClient.Client.{State}
   alias ZssClient.Adapters.{Socket}
   alias ZssClient.{Message}
+  import ZssClient.Error
 
   require Logger
 
@@ -79,7 +80,19 @@ defmodule ZssClient.Client do
     end)
 
     %{payload: payload, status: status} = response
-    reply = {:ok, payload, status |> String.to_integer}
+    code = status |> String.to_integer
+
+    indicator = case error?(code) do
+      true -> :error
+      _ -> :ok
+    end
+
+    reply_payload = case error?(code) do
+      true -> get_error(code, payload)
+        _ -> payload
+    end
+
+    reply = {indicator, reply_payload, code}
 
     {:reply, reply, state}
   end
