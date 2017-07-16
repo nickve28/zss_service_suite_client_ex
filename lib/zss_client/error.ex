@@ -6,7 +6,7 @@ defmodule ZssClient.Error do
   @errors ZssClient.ErrorCodes.errors
   @internal "500"
 
-  @messages [:developer_message, :user_message, :validation_errors]
+  @messages ["developer_message", "user_message", "validation_errors"]
 
   @doc """
   Creates an error model based on the code. Unknown codes get coerced to 500.
@@ -25,7 +25,7 @@ defmodule ZssClient.Error do
   iex> error["validation_errors"]
   []
 
-  iex> %{"developer_message" => msg} = ZssClient.Error.get_error(400, %{developer_message: "Invalid id sent"})
+  iex> %{"developer_message" => msg} = ZssClient.Error.get_error(400, %{"developer_message" => "Invalid id sent"})
   iex> msg
   "Invalid id sent"
 
@@ -35,10 +35,6 @@ defmodule ZssClient.Error do
       #convert to string key
       overrides = messages
       |> Map.take(@messages)
-      |> Enum.map(fn {key, value} ->
-        {Atom.to_string(key), value}
-      end)
-      |> Enum.into(%{})
 
       error
       |> Map.merge(overrides)
