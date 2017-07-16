@@ -45,7 +45,7 @@ defmodule ZssClient.Client do
   end
 
   def handle_call({:call, {verb, payload, options}}, _from, %{config: config} = state) do
-    headers = Map.take(options, [:headers])
+    headers = Map.get(options, :headers, nil) || Map.get(options, "headers", %{})
 
     message = Message.new config.sid, verb
     message = %ZssClient.Message{message | payload: payload, headers: headers}

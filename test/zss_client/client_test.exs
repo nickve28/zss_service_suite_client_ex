@@ -166,7 +166,7 @@ defmodule ZssClient.ClientTest do
       Socket.stub(:connect, :ok)
       Socket.stub(:send, fn _, frames ->
         [_, "REQ", _rid, _address, headers | _] = frames
-        assert %{"headers" => %{"user_id" => "1"}} = Msgpax.unpack!(headers)
+        assert %{"user_id" => "1"} = Msgpax.unpack!(headers)
 
         send(this, {:test, :ok})
       end)
