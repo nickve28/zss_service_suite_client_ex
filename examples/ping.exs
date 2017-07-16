@@ -8,7 +8,13 @@ defmodule Example.Ping do
     |> ZssClient.get_config
     |> ZssClient.get_client
 
-    :ok = Client.call(client, {"list", %{id: "1"}, %{}})
+    options = %{
+      headers: %{
+        "X-REQUEST-ID" => "123"
+      }
+    }
+
+    :ok = Client.call(client, {"list", %{id: "1"}, options})
     {:ok, _payload, _headers} = Client.get_response(client)
   end
 end
