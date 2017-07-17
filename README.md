@@ -24,7 +24,7 @@ In order to create a client, you start by creating an appropriate configuration.
 Note that broker and timeout are optional, and will default to the shown values respectively.
 
 ```elixir
-config = ZssClient.get_instance %{identity: "EXAMPLE_CLIENT", broker: "tcp://127.0.0.1:7776", timeout: 1000, sid: "PING"}
+config = ZssClient.get_instance %{identity: "EXAMPLE_CLIENT", broker: "tcp://127.0.0.1:7777", timeout: 1000, sid: "PING"}
 ```
 
 Based on the config, you can instantiate Clients.
@@ -36,6 +36,7 @@ Based on the config, you can instantiate Clients.
 This client can be used to make calls to various specified endpoints.
 
 ```elixir
+ZssClient.call(client, request)
 with {:ok, payload, status} <- ZssClient.get_response(client) do
   IO.inspect("Received #{inspect payload} with status #{inspect status}")
   {:ok, status}
@@ -71,8 +72,8 @@ Clients will return a 3 value tuple, with the following properties:
 
 | Property | Type | Description |
 |--------|------------|-------------|
-| indicator | atom    | Indicates whether the request can be considered succesfull or an error. Signal by :ok | :error respectively.
-| payload | Mixed     | The response payload
+| indicator | atom    | Indicates whether the request can be considered succesfull or an error. Signalled by :ok or :error respectively.
+| payload | Mixed     | The response payload. Keep in mind that data is deserialized and atom based maps get converted to string key maps.
 | code    | Integer   | The status code associated with the request. Maps to HTTP codes.
 
 ## Supervising
