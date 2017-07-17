@@ -226,7 +226,6 @@ defmodule ZssClient.ClientTest do
       assert {:error, _payload, 400} = response
     end
 
-
     test "translates status codes greater or equal to 400 to an error payload" do
       config = %Config{sid: "SERVICE", identity: "CLIENT"}
 
@@ -247,5 +246,27 @@ defmodule ZssClient.ClientTest do
       {:error, payload, 400} = Client.get_response(client)
       assert %{"validation_errors" => _, "developer_message" => _, "user_message" => _} = payload
     end
+  end
+
+  test "returns a timeout if the response takes longer than the specified timeout" do
+    config = %Config{sid: "SERVICE", identity: "CLIENT", timeout: 100}
+
+    Socket.stub(:new_socket, :my_socket)
+    Socket.stub(:connect, :ok)
+    Socket.stub(:send, :ok)
+    Socket.stub(:get_response, fn _ ->
+      response = Message.new "SERVICE", "GET"
+      response = %Message{response | status: "400", payload: %{"id" => "1"}, type: "REP"}
+
+      :timer.sleep(100)
+
+      {:ok, response |> Message.to_frames}
+    end)
+
+    {:ok, client} = Client.start_link(config)
+    Client.call(client, {"get", %{"foo" => "bar"}, %{}})
+
+    {:error, payload, 599} = Client.get_response(client)
+    assert %{"validation_errors" => _, "developer_message" => _, "user_message" => _} = payload
   end
 end

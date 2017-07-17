@@ -43,36 +43,20 @@ defmodule ZssClient.Client.Implementation do
     {:reply, feedback, state}
   end
 
-  def handle_call(:get_response, _from, state) do
-    {:ok, frames} = state.socket
-    |> @socket.get_response
-
-    response = Message.parse(frames)
-
-    Logger.info("Received reply from #{response.address.sid} with status #{response.status}")
-
-    Logger.debug(fn ->
-      "Received payload #{inspect response.payload}"
+  def handle_call(:get_response, _from, %{config: %{timeout: timeout}} = state) do
+    task = Task.async(fn ->
+      state.socket
+      |> @socket.get_response
     end)
 
-    Logger.debug(fn ->
-      "Received headers #{inspect response.headers}"
-    end)
-
-    %{payload: payload, status: status} = response
-    code = status |> String.to_integer
-
-    indicator = case error?(code) do
-      true -> :error
-      _ -> :ok
+    # https://hexdocs.pm/elixir/Task.html#yield/2
+    reply = case Task.yield(task, timeout) || Task.shutdown(task) do
+      {:ok, {:ok, frames}} ->
+        handle_success(frames |> Message.parse)
+      _ ->
+        Logger.info("REP ended up in a timeout after #{timeout}ms!")
+        {:error, get_error(599), 599}
     end
-
-    reply_payload = case error?(code) do
-      true -> get_error(code, payload)
-        _ -> payload
-    end
-
-    reply = {indicator, reply_payload, code}
 
     {:reply, reply, state}
   end
@@ -95,5 +79,35 @@ defmodule ZssClient.Client.Implementation do
   defp send_message(socket, message) do
     [_ | frames] = Message.to_frames(message)
     @socket.send(socket, frames)
+  end
+
+  @doc """
+  Success handler for client
+  """
+  defp handle_success(message) do
+    Logger.info("Received reply from #{message.address.sid} with status #{message.status}")
+
+    Logger.debug(fn ->
+      "Received payload #{inspect message.payload}"
+    end)
+
+    Logger.debug(fn ->
+      "Received headers #{inspect message.headers}"
+    end)
+
+    %{payload: payload, status: status} = message
+    code = status |> String.to_integer
+
+    indicator = case error?(code) do
+      true -> :error
+      _ -> :ok
+    end
+
+    reply_payload = case error?(code) do
+      true -> get_error(code, payload)
+        _ -> payload
+    end
+
+    {indicator, reply_payload, code}
   end
 end
