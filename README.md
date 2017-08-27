@@ -57,7 +57,7 @@ config2 = ZssClient.get_config %{identity: "EXAMPLE_CLIENT", broker: "tcp://127.
 {:ok, pong_client} = ZssClient.get_client(config2)
 
 with :ok <- ZssClient.call(ping_client, "GET", %{}),
-     :ok <- Zssclient.call(pong_client, "LIST", %{}),
+     :ok <- ZssClient.call(pong_client, "LIST", %{}),
      [ping_reply, pong_reply] <- [ZssClient.get_response(ping_client), ZssClient.get_response(pong_client)],
 do
   #handle 2 messages

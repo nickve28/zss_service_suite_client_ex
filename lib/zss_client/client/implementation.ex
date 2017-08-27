@@ -61,6 +61,11 @@ defmodule ZssClient.Client.Implementation do
     {:reply, reply, state}
   end
 
+  def terminate(reason, %{socket: socket}) do
+    @socket.stop(socket)
+    reason
+  end
+
   # Private API
 
   @doc """

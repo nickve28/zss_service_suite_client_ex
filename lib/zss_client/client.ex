@@ -21,4 +21,6 @@ defmodule ZssClient.Client do
   def get_response(pid) do
     GenServer.call(pid, :get_response)
   end
+
+  def stop(pid), do: GenServer.stop(pid)
 end

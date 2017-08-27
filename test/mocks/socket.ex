@@ -48,6 +48,8 @@ defmodule ZssClient.Mocks.Adapters.Socket do
 
   def cleanup(socket), do: GenServer.call(__MODULE__, {:cleanup, [socket]})
 
+  def stop(socket), do: GenServer.call(__MODULE__, {:stop, [socket]})
+
   def handle_call({:stub, verb, response}, _from, %State{handlers: handlers} = state) do
     handlers = Map.put(handlers, verb, response)
     {:reply, :ok, %State{state | handlers: handlers}}
@@ -66,6 +68,10 @@ defmodule ZssClient.Mocks.Adapters.Socket do
   def handle_call(:disable, _from, state) do
     new_state = %State{state | state: :disabled}
     {:reply, :ok, new_state}
+  end
+
+  def handle_call({:stop, [socket]}, _from, %{state: :disabled}) do
+    :chumak.stop(socket)
   end
 
   def handle_call({verb, args}, _from, %{state: :enabled, handlers: handlers} = state) do
