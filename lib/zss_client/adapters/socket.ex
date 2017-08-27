@@ -51,7 +51,7 @@ defmodule ZssClient.Adapters.Socket do
   @doc """
   Cleans up the socket
   """
-  def cleanup(socket) do
+  def stop(socket) do
     :chumak.stop(socket)
     :ok
   end

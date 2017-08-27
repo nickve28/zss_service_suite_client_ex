@@ -269,4 +269,25 @@ defmodule ZssClient.ClientTest do
     {:error, payload, 599} = Client.get_response(client)
     assert %{"validation_errors" => _, "developer_message" => _, "user_message" => _} = payload
   end
+
+  describe "Stopping the client" do
+    test "cleans up the socket" do
+      this = self()
+
+      config = %Config{sid: "SERVICE", identity: "CLIENT", timeout: 100}
+      Socket.stub(:new_socket, :my_socket)
+      Socket.stub(:connect, :ok)
+      Socket.stub(:stop, fn socket ->
+        send(this, :stop)
+      end)
+
+      {:ok, client} = Client.start_link(config)
+      Client.stop(client)
+      receive do
+        :stop -> :ok
+      after 2000 ->
+        raise "Timeout exceeded"
+      end
+    end
+  end
 end

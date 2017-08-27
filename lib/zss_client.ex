@@ -1,7 +1,7 @@
 defmodule ZssClient do
   use Application
 
-  alias ZssClient.Config
+  alias ZssClient.{Config, Client}
 
   @moduledoc """
   The interface for consumers to create ZSS Clients
@@ -17,7 +17,11 @@ defmodule ZssClient do
       supervisor(ZssClient.Client, [])
     ]
 
-    opts = [strategy: :simple_one_for_one, name: ZssClient.Supervisor]
+    opts = [
+      strategy: :simple_one_for_one,
+      name: ZssClient.Supervisor,
+      restart: :transient
+    ]
     Supervisor.start_link(children, opts)
   end
 
@@ -42,4 +46,8 @@ defmodule ZssClient do
   def get_client(%Config{} = config) do
     Supervisor.start_child(ZssClient.Supervisor, [config])
   end
+
+  defdelegate call(pid, payload), to: Client
+  defdelegate get_response(pid), to: Client
+  defdelegate stop(pid), to: Client
 end
