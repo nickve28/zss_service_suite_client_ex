@@ -56,8 +56,8 @@ config2 = ZssClient.get_config %{identity: "EXAMPLE_CLIENT", broker: "tcp://127.
 {:ok, ping_client} = ZssClient.get_client(config)
 {:ok, pong_client} = ZssClient.get_client(config2)
 
-with :ok <- ZssClient.call(ping_client, "GET", %{}),
-     :ok <- ZssClient.call(pong_client, "LIST", %{}),
+with :ok <- ZssClient.call(ping_client, {"GET", %{}, %{headers: %{request_id: "1"}}}),
+     :ok <- ZssClient.call(pong_client, {"LIST", %{}, %{headers: %{request_id: "1"}}}),
      [ping_reply, pong_reply] <- [ZssClient.get_response(ping_client), ZssClient.get_response(pong_client)],
 do
   #handle 2 messages
@@ -82,4 +82,9 @@ This library has a supervisor that each running client will reside under. Curren
 
 ## Running the example
 
-T.B.D
+Just execute
+
+```
+mix run ./examples/ping.exs
+```
+
